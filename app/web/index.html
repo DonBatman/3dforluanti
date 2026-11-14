@@ -1,0 +1,188 @@
+```
+<div class="toolbar-group" title="Add Primitive Shape">
+  <button id="btn-add-box" class="btn primary">+ Box</button>
+  <button id="btn-add-cylinder" class="btn">+ Cylinder</button>
+  <button id="btn-add-cone" class="btn">+ Cone</button>
+  <button id="btn-add-sphere" class="btn">+ Sphere</button>
+</div>
+
+<div class="toolbar-group" title="Edit, Mirror & Clipboard">
+  <button id="btn-copy" class="btn" title="Copy (Ctrl+C)">Copy</button>
+  <button id="btn-paste" class="btn" title="Paste (Ctrl+V)">Paste</button>
+  <button id="btn-duplicate" class="btn" title="Duplicate (Ctrl+D)">Dup</button>
+  <button id="btn-mirror-x" class="btn" title="Mirror Selected Across X Center">Mirror X</button>
+  <button id="btn-mirror-y" class="btn" title="Mirror Selected Across Y Center">Mirror Y</button>
+  <button id="btn-mirror-z" class="btn" title="Mirror Selected Across Z Center">Mirror Z</button>
+  <button id="btn-delete" class="btn danger" title="Delete (Del)">Del</button>
+  <button id="btn-undo" class="btn" title="Undo (Ctrl+Z)">Undo</button>
+  <button id="btn-redo" class="btn" title="Redo (Ctrl+Y)">Redo</button>
+</div>
+
+<div class="toolbar-group">
+  <label class="inline-label" for="snap-select">Snap:</label>
+  <select id="snap-select" class="select">
+    <option value="1" selected>1 px (1/16)</option>
+    <option value="0.5">0.5 px (1/32)</option>
+    <option value="0.25">0.25 px (1/64)</option>
+    <option value="0">Free</option>
+  </select>
+</div>
+
+<div class="toolbar-group right-actions">
+  <button id="btn-open" class="btn">Open</button>
+  <button id="btn-save" class="btn">Save</button>
+  <div class="dropdown">
+    <button id="btn-export-menu" class="btn accent">Export ▾</button>
+    <div id="export-dropdown" class="dropdown-menu hidden">
+      <button id="exp-mod-zip" class="dropdown-item">Complete Luanti Mod (.zip)</button>
+      <button id="exp-nodebox" class="dropdown-item">Luanti Nodebox (.lua)</button>
+      <button id="exp-obj" class="dropdown-item">Wavefront Mesh (.obj + .mtl)</button>
+      <button id="exp-glb" class="dropdown-item">glTF Binary (.glb)</button>
+    </div>
+  </div>
+</div>
+```
+```
+  <div class="panel-header sub-header">
+    <span>Materials & Textures</span>
+    <div class="header-btns">
+      <button id="btn-add-color-mat" class="btn-mini" title="Add Color Material">+ Color</button>
+      <label class="btn-mini primary" for="lib-texture-file" title="Import PNG into Material List">+ PNG</label>
+      <input id="lib-texture-file" type="file" accept="image/png,image/jpeg" multiple class="hidden" />
+    </div>
+  </div>
+  <ul id="materials-list" class="materials-list"></ul>
+
+  <div class="panel-footer-hint">
+    Double-click piece or material to rename<br />
+    Click material to paint active face
+  </div>
+</aside>
+
+<section class="viewport-container">
+  <canvas id="viewport-canvas"></canvas>
+  <div class="viewport-overlay top-left">
+    <button id="cam-reset" class="btn-mini">Reset Camera</button>
+    <button id="toggle-bounds" class="btn-mini active">3×2×3 Bounds</button>
+    <button id="toggle-selbox" class="btn-mini">Selection Box</button>
+    <button id="toggle-wireframe" class="btn-mini">Wireframe</button>
+  </div>
+  <div id="toast" class="toast hidden"></div>
+</section>
+
+<aside class="panel right-panel">
+  <div class="panel-header">
+    <span>Inspector</span>
+    <span id="selected-type-badge" class="badge">BOX</span>
+  </div>
+
+  <div id="inspector-empty" class="inspector-empty hidden">
+    Select a shape in the 3D viewport or Scene Nodes list to edit its properties, UV tiling, or collision box.
+  </div>
+
+  <div id="inspector-body" class="inspector-body">
+    <div class="field-group">
+      <div class="field-title">
+        <label for="prop-name" style="margin:0;">Piece Name</label>
+        <label style="display:inline-flex;align-items:center;gap:5px;margin-right:14px;cursor:pointer;color:var(--text-main);">
+          <span>Half</span>
+          <input id="prop-half" type="checkbox" />
+        </label>
+      </div>
+      <input id="prop-name" type="text" class="input" placeholder="e.g. Tabletop, Leg_FL..." />
+    </div>
+
+    <div class="field-group">
+      <div class="field-title">Position (Pixels, 0–16 = Origin Node)</div>
+      <div class="vec3-grid">
+        <label>X <input id="pos-x" type="number" step="1" class="input num" /></label>
+        <label>Y <input id="pos-y" type="number" step="1" class="input num" /></label>
+        <label>Z <input id="pos-z" type="number" step="1" class="input num" /></label>
+      </div>
+      <div id="luanti-coords-readout" class="sub-readout">Luanti: [-0.500, -0.500, -0.500] → [0.500, 0.500, 0.500]</div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-title">Size (Pixels, 16 px = 1 Node)</div>
+      <div class="vec3-grid">
+        <label>W <input id="size-x" type="number" min="0" max="48" step="1" class="input num" /></label>
+        <label>H <input id="size-y" type="number" min="0" max="32" step="1" class="input num" /></label>
+        <label>D <input id="size-z" type="number" min="0" max="48" step="1" class="input num" /></label>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-title">
+        Rotation (Degrees)
+        <button id="btn-snap-rot" class="btn-mini" title="Snap Rotation to 22.5°">Snap 22.5°</button>
+      </div>
+      <div class="vec3-grid">
+        <label>X <input id="rot-x" type="number" min="-180" max="180" step="15" class="input num" /></label>
+        <label>Y <input id="rot-y" type="number" min="-180" max="180" step="15" class="input num" /></label>
+        <label>Z <input id="rot-z" type="number" min="-180" max="180" step="15" class="input num" /></label>
+      </div>
+    </div>
+
+    <div id="segments-group" class="field-group hidden">
+      <div class="field-title">
+        Curved Detail (Segments)
+        <span id="segment-cost-label" class="sub-readout"></span>
+      </div>
+      <div class="range-row">
+        <input id="prop-segments" type="range" min="6" max="32" step="1" />
+        <span id="prop-segments-val" class="mono">12</span>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-title">Base Color & Default Material</div>
+      <div class="color-row">
+        <input id="prop-color" type="color" value="#6ea8fe" />
+        <input id="prop-color-hex" type="text" class="input mono" value="#6ea8fe" maxlength="7" />
+      </div>
+      <select id="prop-base-material" class="select"></select>
+    </div>
+
+    <div id="face-tiling-group" class="field-group">
+      <div class="field-title">
+        Per-Side / Face Tiling & UV
+        <button id="btn-apply-all-faces" class="btn-mini" title="Apply active face material & UV to all sides">Apply All</button>
+      </div>
+      <div id="face-selector-grid" class="face-grid"></div>
+      <div class="face-assign-row">
+        <span id="active-face-label" class="badge">Top (+Y)</span>
+        <select id="prop-face-material" class="select"></select>
+      </div>
+      <div class="uv-row">
+        <label class="uv-field">Rot
+          <select id="prop-face-uv-rot" class="select">
+            <option value="0">0°</option>
+            <option value="90">90°</option>
+            <option value="180">180°</option>
+            <option value="270">270°</option>
+          </select>
+        </label>
+        <label class="uv-field">Tile U <input id="prop-face-uv-rx" type="number" min="0.25" max="16" step="0.25" value="1" class="input num" /></label>
+        <label class="uv-field">Tile V <input id="prop-face-uv-ry" type="number" min="0.25" max="16" step="0.25" value="1" class="input num" /></label>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-title">
+        Luanti Selection / Collision Box
+        <button id="btn-fit-selbox" class="btn-mini" title="Auto-fit selection box around all pieces">Auto-Fit</button>
+      </div>
+      <div class="vec3-grid">
+        <label>X1 <input id="selbox-x1" type="number" step="1" class="input num" /></label>
+        <label>Y1 <input id="selbox-y1" type="number" step="1" class="input num" /></label>
+        <label>Z1 <input id="selbox-z1" type="number" step="1" class="input num" /></label>
+      </div>
+      <div class="vec3-grid">
+        <label>X2 <input id="selbox-x2" type="number" step="1" class="input num" /></label>
+        <label>Y2 <input id="selbox-y2" type="number" step="1" class="input num" /></label>
+        <label>Z2 <input id="selbox-z2" type="number" step="1" class="input num" /></label>
+      </div>
+    </div>
+  </div>
+</aside>
+```
