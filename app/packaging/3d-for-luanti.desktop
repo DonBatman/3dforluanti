@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=3D for Luanti
+Comment=Lightweight 3D voxel and low-poly modeler for Luanti
+Exec=/usr/bin/3d-for-luanti
+Icon=3d-for-luanti
+Terminal=false
+Categories=Graphics;3DGraphics;Development;
+Keywords=Luanti;Minetest;3D;Modeler;Voxel;Nodebox;GLB;OBJ;
+StartupWMClass=3d-for-luanti
