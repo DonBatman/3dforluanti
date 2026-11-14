@@ -1,0 +1,7 @@
+import { nextNodeId, clampNodeToWorkspace } from './shapes.js';
+export class ClipboardAndHistory { constructor(maxHistory = 50) { this.clipboard = []; this.undoStack = []; this.redoStack = []; this.maxHistory = maxHistory; }
+pushSnapshot(nodes) { const snap = JSON.stringify(nodes); if (this.undoStack.length > 0 && this.undoStack[this.undoStack.length - 1] === snap) { return; } this.undoStack.push(snap); if (this.undoStack.length > this.maxHistory) { this.undoStack.shift(); } this.redoStack = []; }
+undo(currentNodes) { if (this.undoStack.length === 0) return null; this.redoStack.push(JSON.stringify(currentNodes)); const prev = this.undoStack.pop(); return JSON.parse(prev); }
+redo(currentNodes) { if (this.redoStack.length === 0) return null; this.undoStack.push(JSON.stringify(currentNodes)); const next = this.redoStack.pop(); return JSON.parse(next); }
+copy(selectedNodes) { if (!selectedNodes || selectedNodes.length === 0) return 0; this.clipboard = JSON.parse(JSON.stringify(selectedNodes)); return this.clipboard.length; }
+paste(offsetPx = 1) { if (this.clipboard.length === 0) return []; return this.clipboard.map((item) => { const clone = JSON.parse(JSON.stringify(item)); clone.id = nextNodeId(); clone.name = ${item.name} Copy; clone.pos.x += offsetPx; clone.pos.z += offsetPx; return clampNodeToWorkspace(clone); }); } }
